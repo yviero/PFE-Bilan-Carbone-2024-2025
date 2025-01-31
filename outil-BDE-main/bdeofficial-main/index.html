@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outil de calcul des Émissions de CO2 d'un Événement</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calcul des Émissions de CO2 d'un Événement au sein de l'école</h1>
+        </header>
+
+        <section id="informations">
+            <p>Bienvenue sur l'outil calcul émissions GES d'une activité du BDE intra école</p>
+            <p>Pour obtenir un aperçu de vos émissions de GES, remplissez le formulaire suivant et les résultats apparaîtront en bas de la page après avoir cliqué sur "calculer les émissions".</p>
+            <p>Pour les sections Alimentation, Boissons et Déchets vous devrez à chaque fois renseigner la quantité et cliquer sur "ajouter".</p>
+        </section>
+
+        <!-- Section 1 : Informations sur l'événement -->
+        <section id="event-details">
+            <h2>Informations sur l'événement</h2>
+            <label for="event-date">Date de l'événement:</label>
+            <input type="date" id="event-date">
+            
+            <label for="event-description">Description de l'événement:</label>
+            <input type="text" id="event-description">
+            
+            <label for="participants">Nombre de participants:</label>
+            <input type="number" id="participants" min="1" step="1">
+        </section>
+
+        <!-- Section 2 : Déplacements -->
+        <section id="transport">
+            <h2>Déplacements</h2>
+            <label for="distance">Distance allez-retour parcourue pour les courses (en km):</label>
+            <input type="number" id="distance" min="0" step="0.1">
+            
+            <label for="transport-mode">Mode de transport:</label>
+            <select id="transport-mode">
+                <option value="voiture">Voiture</option>
+                <option value="velo">Vélo</option>
+                <option value="marche">Marche</option>
+                <option value="tramway">Tramway</option>
+                <option value="bus">Bus</option>
+            </select>
+        </section>
+
+        <!-- Section 3 : Alimentation -->
+        <section id="food">
+            <h2>Alimentation</h2>
+            <label for="food-item">Sélectionner un aliment:</label>
+            <select id="food-item">
+                <option value="viennoiserie">Viennoiserie</option>
+                <option value="sandwichpoulet">Sandwich Poulet</option>
+                <option value="sandwichvege">Sandwich Végé</option>
+                <option value="repasviandeblanchepoisson">Repas avec viande blanche ou poisson</option>
+                <option value="pizza4fromages">Pizza 4 fromages</option>
+                <option value="oeufs">Oeufs</option>
+                <option value="madeleines">Madeleines</option>
+                <option value="lasagnes">Lasagne viande</option>
+                <option value="knackis">Knackis</option>
+                <option value="lait">Lait demi-écrémé</option>
+                <option value="glaces">Glaces</option>
+                <option value="concombre">Concombre</option>
+                <option value="baguette">Baguette</option>
+            </select>
+            <label for="food-quantity">Quantité (en unité):</label>
+            <input type="number" id="food-quantity" min="0" step="0.1">
+            <button onclick="addFood()">Ajouter</button>
+            <ul id="food-list"></ul>
+        </section>
+
+        <!-- Section 4 : Boissons -->
+        <section id="drinks">
+            <h2>Boissons</h2>
+            <label for="drink-item">Sélectionner une boisson:</label>
+            <select id="drink-item">
+                <option value="jus">Jus</option>
+                <option value="soda">Soda</option>
+                <option value="vin">Vin</option>
+                <option value="biere">Bière</option>
+                <option value="cafe">Café</option>
+                <option value="eau">Eau en bouteille</option>
+                <option value="alcool">Alcool fort</option>
+            </select>
+            <label for="drink-quantity">Quantité (en L):</label>
+            <input type="number" id="drink-quantity" min="0" step="0.1">
+            <button onclick="addDrink()">Ajouter</button>
+            <ul id="drink-list"></ul>
+        </section>
+
+        <!-- Section 5 : Déchets -->
+        <section id="waste">
+            <h2>Déchets</h2>
+            <label for="waste-type">Sélectionner un type de déchet:</label>
+            <select id="waste-type">
+                <option value="canette">Cannette</option>
+                <option value="dechet-menager">Déchets Ménagers</option>
+                <option value="dechet-tries">Déchets Triés</option>
+            </select>
+            <label for="waste-quantity">Quantité (approximatif en kg):</label>
+            <input type="number" id="waste-quantity" min="0" step="0.1">
+            <button onclick="addWaste()">Ajouter</button>
+            <ul id="waste-list"></ul>
+        </section>
+
+        <!-- Section Résultats -->
+        <section id="result" style="display: none;">
+            <h2>Résultats</h2>
+            <p><strong>Date de l'événement:</strong> <span id="result-date"></span></p>
+            <p><strong>Description:</strong> <span id="result-description"></span></p>
+            <p><strong>Nombre de participants:</strong> <span id="result-participants"></span></p>
+            <p><strong>Émissions totales de CO2:</strong> <span id="total-co2">0</span> kg CO2</p>
+            
+            <!-- Camembert -->
+            <h3>Répartition des émissions de CO2</h3>
+            <canvas id="co2-pie-chart" width="400" height="400"></canvas>
+
+            <!-- Bouton pour télécharger le fichier Excel -->
+            <button id="download-excel" style="margin-top: 20px; display: none;" onclick="downloadExcel()">Télécharger le fichier Excel</button>
+        </section>
+
+        <button onclick="calculateCO2()">Calculer les Émissions</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
